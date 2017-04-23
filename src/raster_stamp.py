@@ -124,8 +124,9 @@ def raster_stamp(in_fc, in_raster, out_raster, operation, distance_list, z_func,
         CopyFeatures(buffer_fc, buffer_fc+'nolock')
 
         # Get the properties of the input raster so we can make sure the stamp raster fits the surface raster, then
-        # convert the buffers to the stamp raster.
-        cell_size = float(GetRasterProperties(in_raster, 'CELLSIZEX').getOutput(0))
+        # convert the buffers to the stamp raster.  Replace commas with periods because non-english systems will break
+        # otherwise (other languages use commas instead of periods as decimal points).
+        cell_size = float(GetRasterProperties(in_raster, 'CELLSIZEX').getOutput(0).replace(',', '.'))
         env.snapRaster = in_raster
         PolygonToRaster(buffer_fc+'nolock', 'z_value', stamp_raster, cell_assignment=cell_assignment,
                         cellsize=cell_size)
