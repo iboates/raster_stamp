@@ -1,4 +1,4 @@
-from arcpy import env, Describe, GetArgumentCount, GetParameter, ListFields
+from arcpy import AddError, env, CheckExtension, Describe, GetArgumentCount, GetParameter, ListFields
 from arcpy.analysis import MultipleRingBuffer
 from arcpy.conversion import PolygonToRaster
 from arcpy.da import UpdateCursor
@@ -106,6 +106,7 @@ def raster_stamp(in_fc, in_raster, out_raster, operation, distance_list, z_func,
 
     try:
         # make the buffers, add a z field, and populate the field with the z values at the specified distances
+        
         MultipleRingBuffer(in_fc, buffer_fc, sorted(distance_list), buffer_unit, 'distance', dissolve_option,
                            outside_polygons_only)
         AddField(buffer_fc, 'z_value', 'DOUBLE')
@@ -176,4 +177,7 @@ def raster_stamp(in_fc, in_raster, out_raster, operation, distance_list, z_func,
 
 if __name__ == '__main__':
 
-    raster_stamp(*[GetParameter(i) for i in range(GetArgumentCount())])
+    if CheckExtension('Spatial') != 'Available':
+        raster_stamp(*[GetParameter(i) for i in range(GetArgumentCount())])
+    else:
+        AddError('\tThe Raster Stamp requires ArcGIS Spatial Analyst Extension to function.  Please activate the extension and try again.')
