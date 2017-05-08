@@ -1,4 +1,4 @@
-from arcpy import AddError, env, CheckExtension, Describe, GetArgumentCount, GetParameter, ListFields
+from arcpy import AddError, env, CheckExtension, CheckInExtension, CheckOutExtension, Describe, GetArgumentCount, GetParameter, ListFields
 from arcpy.analysis import MultipleRingBuffer
 from arcpy.conversion import PolygonToRaster
 from arcpy.da import UpdateCursor
@@ -43,7 +43,7 @@ def make_z_dict(distance_list, stair_type, z_func):
             raise ValueError('Invalid stair_type parameter.  Valid values are "CENTRE", "INSIDE" and "OUTSIDE".')
 
         # evaluate z value at di
-        z_values_dict[float(distance)] = eval(z_func.replace('d', str(di)))
+        z_values_dict[float(distance)] = eval(z_func.replace('d', str(di).replace(',', '.')))
 
         previous_distance = distance
 
@@ -177,7 +177,9 @@ def raster_stamp(in_fc, in_raster, out_raster, operation, distance_list, z_func,
 
 if __name__ == '__main__':
 
-    if CheckExtension('Spatial') != 'Available':
+    if CheckExtension('Spatial') == 'Available':
+        CheckOutExtension('Spatial')
         raster_stamp(*[GetParameter(i) for i in range(GetArgumentCount())])
+        CheckInExtension('Spatial')
     else:
-        AddError('\tThe Raster Stamp requires ArcGIS Spatial Analyst Extension to function.  Please activate the extension and try again.')
+        AddError('\tThe Raster Stamp requires ArcGIS Spatial Analyst Extension to function.  There are no Spatial Analyst Extension licenses available.  Please make one free and try again.')
